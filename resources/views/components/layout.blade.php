@@ -89,14 +89,33 @@
 .whatsapp-btn:hover {
     background-color: #1DA85F;
 }
-        </style>
+.offer-ribbon {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-weight: bold;
+        transform: rotate(-20deg);
+    }
+.sale-ribbon {
+        position: absolute;
+        top: 20px;
+        right: 10px;
+        background: red;
+        color: white;
+        padding: 8px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        transform: rotate(45deg);
+        box-shadow: 0px 2px 5px rgba(0,0,0,0.2);
+    }
+</style>
 </head>
-<body>
+<body class="bg-light">
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
         <img src="{{asset('images/logo/main_logo.jpeg')}}" alt="Rirs Collection Logo" width="40" height="40" class="me-2">
-            <a class="navbar-brand" href="#">Riri's Collection</a>
+            <a class="navbar-brand" href="#">Riri's Shop</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -136,8 +155,8 @@
                                 @endif
                             @endif
                             </a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{route('profile')}}">{{auth()->user()->name}}</a></li>
-                            <</span>
+                            <li class="nav-item"><a class="nav-link" href="{{route('profile')}}">{{auth()->user()->name}}<i class="fa-solid fa-user"></i></a></li>
+                            
                             
                         <form method='POST' action="{{route('logout')}}">
                             @csrf
@@ -149,23 +168,79 @@
             </div>
         </div>
     </nav>
+
+        @if(Auth::check() && Auth::user()->is_admin == true)
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold">Admin Menu</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="adminMenu">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ route('admin.dashboard') }}">Dashboard |</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('admin.users') }}">Users |</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('admin.adduser') }}">Add User |</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('admin.orders') }}">Orders |</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Pending Orders |</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('admin.products') }}">Products |</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('admin.categories') }}">Categories |</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('admin.contact') }}">Contact |</a></li>
+                
+                    <li class="nav-item"><a class="nav-link" href="#">Reports |</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Settings</a></li>
+                </ul>
+            </div>
+        </div>
+    
+@endif
+
+    </nav>
    <a href="https://wa.me/{{env('ADMIN_PHONE_NUMBER')}}" target="_blank" class="whatsapp-btn">
         <i class="fab fa-whatsapp fa-2x text-white"></i>
     </a>
     {{$slot}}
-    
-    <footer class="bg-dark text-white text-center py-3">
-        <p>&copy; {{date("Y")}} Riri's Collection. All rights reserved.</p>
-        <p>Web Development by Joseph Thangu +254 758954791 
-    </footer>
 
-    <!-- Bootstrap & jQuery Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <footer class="bg-dark text-light py-4 mt-5">
+    <div class="container">
+        <div class="row">
+            <!-- Column 1: About & Contact -->
+            <div class="col-md-4">
+                <h5>About Us</h5>
+                <p>Learn more about {{ env('COMPANY_NAME') }} and our mission.</p>
+                <a href="{{ route('about') }}" class="text-light">About Us</a><br>
+                <a href="{{ route('contact') }}" class="text-light">Contact Us</a><br>
+                <a href="https://wa.me/{{env('ADMIN_PHONE_NUMBER')}}" class="text-light">Chat on WhatsApp</a>
+            </div>
+
+            <!-- Column 2: Quick Links -->
+            <div class="col-md-4">
+                <h5>Quick Links</h5>
+                <a href="{{ route('home') }}" class="text-light">Home</a><br>
+                <a href="{{ route('shop') }}" class="text-light">Shop</a><br>
+                <a href="{{ route('cart') }}" class="text-light">View Cart</a><br>
+                <a href="{{ route('orders.store') }}" class="text-light">Checkout</a>
+            </div>
+
+            <!-- Column 3: Legal & Social -->
+            <div class="col-md-4">
+                <h5>Legal & Social</h5>
+                <a href="{{route('terms')}}" class="text-light">Terms & Conditions</a><br>
+                <a href="{{route('faqs')}}" class="text-light">FAQS</a><br>
+                <a href="https://facebook.com/yourcompany" class="text-light">Facebook</a><br>
+                <a href="https://twitter.com/yourcompany" class="text-light">Twitter</a>
+            </div>
+        </div>
+
+        <div class="text-center mt-3">
+            <p>&copy; {{ date('Y') }} {{ env('COMPANY_NAME') }}. All rights reserved.</p>
+             <p>Web Development by Joseph Thangu +254 758954791 
+        </div>
+    </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function(){
+
     
-        });
-    </script>
 </body>
 </html>

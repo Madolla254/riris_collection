@@ -3,16 +3,19 @@
         <div class="row">
             <!-- Product Image & Thumbnails -->
             <div class="col-md-6 text-center">
+                <div>
+                
                 <img src="{{asset($product->image_url)}}" class="img-fluid rounded mb-3" id="mainImage" alt="{{$product->name}}">
-               
+               </div>
             </div>
 
             <!-- Product Details -->
             <div class="col-md-6">
                 <div class="card p-4">
                     <h2 class="fw-bold">{{$product->name}}</h2>
-                    <p class="text-muted">{{$product->category}}</p>
-                    <h4 class="text-danger">KSH @if($product->sale_price) {{$product->sale_price}}<span class="text-success">(20% Off)</span> @else {{$product->price}}@endif</h4>
+                    <p class="text-muted">{{$product->category->name}}</p>
+                    
+                    <h4 class="card-text text-dark">@if($product->sale_price) <small class="text-decoration-line-through text-muted fst-italic">KSH {{ number_format($product->price) }}</small><br/><span class="text-danger">KSH {{$product->sale_price}}</span><span class="text-success badge">({{round($product->price/$product->sale_price,2)}}% Off)</span> @else <span class="text-danger">KSH {{$product->price}}</span>@endif</h4>
                     <p><strong>Stock:</strong> {{$product->stock}}</p>
                     <p><strong>Brand:</strong> {{$product->brand}}</p>
                     @if($product->color)

@@ -3,17 +3,17 @@
         @csrf
     <div class="mb-3">
         <label for="name" class="form-label">Full Name</label>
-        <input type="text" id="name" name="name" class="form-control" placeholder="Enter your name" required>
+        <input value="{{old('name')}}" type="text" id="name" name="name" class="form-control" placeholder="Enter your name" required>
     </div>
     
     <div class="mb-3">
         <label for="email" class="form-label">Email</label>
-        <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required>
+        <input value="{{old('email')}}"type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required>
     </div>
     
     <div class="mb-3">
         <label for="phone" class="form-label">Phone Number</label>
-        <input type="tel" id="phone" name="phone" class="form-control" placeholder="Enter your phone number" required>
+        <input type="tel"value="{{old('phone')}}" id="phone" name="phone" class="form-control" placeholder="+254712345678" required />
     </div>
     
     <div class="mb-3">

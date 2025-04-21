@@ -3,9 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Contact;
+use App\Models\OrderItems;
+use App\Models\Orders;
 use Illuminate\Http\Request;
 use App\Models\Products;
+use App\Models\User;
 use App\Models\Users;
+use Illuminate\Support\Facades\Mail;
 
 class AdminController extends Controller
 {
@@ -13,7 +18,12 @@ class AdminController extends Controller
     {
         //count products
         $productsCount = Products::count();
-        return view('admin.dashboard',['productsCount'=>$productsCount]);
+        //count users
+        $totalCustomers=User::count();
+        //count orders with status pending
+        $pendingOrders=Orders::where('status','pending')->count();
+        //$pendingOrders=Orders::count();
+        return view('admin.dashboard',['productsCount'=>$productsCount,'totalCustomers'=>$totalCustomers,'pendingOrders'=>$pendingOrders]);
     }
     public function products()
     {
@@ -23,8 +33,92 @@ class AdminController extends Controller
     }
     public function orders()
     {
-        return view('admin.orders');
+        $orders = Orders::with('User')->orderBy('created_at', 'desc')->simplePaginate();
+
+        // Return view with orders data
+        return view('admin.orders', ['orders' => $orders,'title'=>'All Orders']);
+        
     }
+    //pending orders
+    public function pendingOrders()
+    {
+        $orders = Orders::where('status', 'pending')->with('User')->orderBy('created_at', 'desc')->simplePaginate();
+        // Return view with orders data
+        return view('admin.orders', ['orders'=>$orders,'title'=>'Pending Orders']);
+        
+    }
+    //completed orders
+    public function completedOrders()
+    {
+        $orders = Orders::where('status', 'completed')->with('User')->orderBy('created_at', 'desc')->simplePaginate();
+        // Return view with orders data
+        return view('admin.orders', ['orders'=>$orders,'title'=>'Completed Orders']);
+        
+    }
+    //cancelled orders
+    public function cancelledOrders()
+    {
+        $orders = Orders::where('status', 'cancelled')->with('User')->orderBy('created_at', 'desc')->simplePaginate();
+        // Return view with orders data
+        return view('admin.orders', ['orders'=>$orders,'title'=>'Cancelled Orders']);
+        
+    }
+    //shipped orders
+    public function shippedOrders()
+    {
+        $orders = Orders::where('status', 'shipped')->with('User')->orderBy('created_at', 'desc')->simplePaginate();
+        // Return view with orders data
+        return view('admin.orders', ['orders'=>$orders,'title'=>'Shipped Orders']);
+        
+    }
+    
+    //view order
+    public function viewOrder($id)
+    {
+        $order = Orders::find($id);
+        
+        if($order->user_id){
+            $user = User::find($order->user_id);
+        }else{
+            $user = null;
+        }
+
+        if (!$order) {
+            return redirect()->route('admin.orders')->with('error', 'Order not found');
+        }
+        $orderItems = OrderItems::where('order_id', $id)->get();
+        //$productItem=Products::find($orderItems->product_id);
+        return view('admin.vieworder', ['order' => $order, 'orderItems' => $orderItems, 'user' => $user]);
+    }
+
+    public function deleteOrder($id)
+    {
+        $order = Orders::findOrFail($id);
+        if (!$order) {
+            return redirect()->route('admin.orders')->with('error', 'Order not found');
+        }
+        $order->delete();
+        return redirect()->route('admin.orders')->with('success', 'Order deleted successfully');
+    }
+    public function updateOrderStatus(Request $request)
+{
+    $order = Orders::find($request->id);
+    if ($order) {
+        $order->status = $request->status;
+        $order->save();
+        return response()->json(['success' => true, 'message' => 'Order status updated!']);
+    }
+    return response()->json(['success' => false, 'message' => 'Order not found!'], 404);
+}
+public function updateOrderStatus_return(Request $request){
+    $order = Orders::find($request->id);
+    if ($order) {
+        $order->status = $request->status;
+        $order->save();
+        return redirect()->back()->with('success', 'Order status updated!');
+    }
+    return redirect()->back()->with('error', 'Could not update status !');
+}
     public function addProduct(Request $request)
     {
         //validate the request
@@ -52,8 +146,8 @@ class AdminController extends Controller
 
         //create a new product
         $product = new Products();
-        $product->name = $request->input('name');
-        $product->description = $request->input('description');
+        $product->name = ucwords($request->input('name'));
+        $product->description = ucfirst($request->input('description'));
         $product->price = $request->input('price');
         // handle image upload
         // $product->image_url = $request->input('image_url');
@@ -204,7 +298,7 @@ class AdminController extends Controller
 
         //create a new category
         $category = new Category();
-        $category->name = $request->input('name');
+        $category->name = ucfirst($request->input('name'));
         $category->save();
 
         return redirect()->route('admin.categories')->with('success', 'Category added successfully');
@@ -247,5 +341,66 @@ class AdminController extends Controller
         }
         $category->delete();
         return redirect()->route('admin.categories')->with('success', 'Category deleted successfully');
+    }
+
+    public function users()
+    {
+        $users = User::orderBy('is_admin','desc')->orderBy('created_at','desc')->paginate(100);
+        if (!$users) {
+            return redirect()->route('admin.products')->with('error', 'Users not found');
+        }
+        return view('admin.users', ['users' => $users]);
+    }
+    public function show_adduser()
+    {
+        return view('admin.adduser');
+    }
+    public function addUser(Request $request)
+    {
+        //validate the request
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+            'is_admin' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:255',
+            
+        ]);
+
+        //create a new user
+        $user = new User();
+        $user->name = ucwords($request->input('name'));
+        $user->email = $request->input('email');
+        $user->phone = $request->input('phone');
+        $user->password = bcrypt($request->input('password'));
+         if($request->input('is_admin') == 'Admin') {
+            $user->is_admin=1;
+        } else {
+            false;
+        }
+        Mail::to($user->email)->send(new \App\Mail\WelcomeMail($user));
+        $user->save();
+        
+
+        return redirect()->route('admin.users')->with('success', 'User added successfully');
+    }
+    //delete user
+    public function deleteUser($id)
+    {
+        $user = User::findOrFail($id);
+        if (!$user) {
+            return redirect()->route('admin.users')->with('error', 'User not found');
+        }
+        $user->delete();
+        return redirect()->route('admin.users')->with('success', 'User deleted successfully');
+    }
+    //view contact messages
+    public function contact()
+    {
+        $contacts = Contact::orderBy('created_at','desc')->paginate(50);
+        if (!$contacts) {
+            return redirect()->route('admin.products')->with('error', 'Contacts not found');
+        }
+        return view('admin.contact', ['contacts' => $contacts]);
     }
 }

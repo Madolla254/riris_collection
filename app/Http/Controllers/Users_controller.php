@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Orders;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class Users_controller extends Controller
 {
@@ -16,7 +18,12 @@ class Users_controller extends Controller
     }
     public function profile()
     {
-        return view('profile');
+        // Get the authenticated user
+        $user = Auth::user();
+        $orders=Orders::where('user_id',$user->id)->simplePaginate(20);
+        //get user orders which are not completed
+        $incomplete_orders=Orders::where('user_id',$user->id)->where('status','!=','completed')->where('status','!=','canceled')->where('status','!=','returned')->simplePaginate(20);
+        return view('profile', compact('user', 'orders','incomplete_orders'));
     }
     public function logout()
     {

@@ -14,13 +14,20 @@
         @foreach($products as $product)
             
             <div class="col-md-4">
+            
                 <a href="{{ route('product.show', $product->id) }}">
                 <div>
                     <div class="card hover-zoom hover-shadow mb-4">
+                    @if($product->is_new)
+                            <span class="badge bg-warning position-absolute top-0 start-0">New Arrival!</span>
+                        @endif
+                        @if($product->is_on_sale)
+                           <span class="sale-ribbon bg-danger badge">Sale!</span>
+                        @endif
                         <img src="{{ $product->image_url }}" class="card-img-top fixed-dimension " alt="{{ $product->name }}">
                         <div class="card-body text-center">
                             <h5 class="card-title text-dark">{{ $product->name }}</h5>
-                            <p class="card-text text-dark">KSH {{ number_format($product->price, 2) }}</p>
+                            <p class="card-text text-dark">@if($product->sale_price) <small class="text-decoration-line-through text-muted fst-italic">KSH {{ number_format($product->price) }}</small><br/>KSH {{$product->sale_price}}<span class="text-success badge">({{round($product->price/$product->sale_price,2)}}% Off)</span> @else <p></p>KSH {{$product->price}}@endif</p>
                             <a href="{{route('add_to_cart',$product->id)}}"> <button class="btn btn-primary">Add to Cart</button></a>
                         </div>
                     </div>

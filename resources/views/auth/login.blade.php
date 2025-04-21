@@ -25,7 +25,9 @@
                 <input type="password" name="password" class="form-control" id="password" placeholder="Enter password" required>
             </div>
             <button type="submit" class="btn btn-primary">Login</button>
-            <p>Dont have an account? <a href="{{ route('register') }}">Register</a></p>
+            <p class="mt-3">Forgot your password? <a href="{{ route('password.request') }}" class="btn btn-link">Reset Password</a>Login with <a href="#" class="btn btn-danger">Google</a></p>
+
+            <p>Dont have an account? <a href="{{ route('register') }}" class="btn btn-primary">Register</a></p>
         </form>
     </div>
 </div>

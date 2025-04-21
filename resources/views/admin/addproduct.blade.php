@@ -5,29 +5,29 @@
         <h2 class="text-center mb-4">Add New Product</h2>
         
         <div class="mb-3">
-            <label for="productName" class="form-label">Product Name</label>
+            <label for="productName" class="form-label">Product Name<span class="text-danger">*</span></label>
             <input type="text"value="{{old('name')}}" class="form-control" id="productName" name="name" required>
         </div>
         
         <div class="mb-3">
-            <label for="productPrice" class="form-label">Product Price</label>
+            <label for="productPrice" class="form-label">Product Price<span class="text-danger">*</span></label>
             <input type="number" step="0.01" class="form-control" id="price" name="price" required>
         </div>
         
         <div class="mb-3">
-            <label for="productImage" class="form-label">Product Image</label>
+            <label for="productImage" class="form-label">Product Image<span class="text-danger">*</span></label>
             <input type="file" class="form-control" id="productImage" name="image_url" accept=".jpg, .jpeg, .png, .gif" required>
         </div>
         
     
         
         <div class="mb-3">
-            <label for="description" class="form-label">Description</label>
+            <label for="description" class="form-label">Description<span class="text-danger">*</span></label>
             <textarea class="form-control" name="description" id="description" rows="3" placeholder="Enter product description" required></textarea>
         </div>
         
         <div class="mb-3">
-            <label for="category" class="form-label">Category</label>
+            <label for="category" class="form-label">Category<span class="text-danger">*</span></label>
             <select class="form-select" name="category_id" id="category" required>
                 <option value="" disabled selected>Select a category</option>
                 @foreach ($categories as $category)
@@ -38,7 +38,7 @@
         </div>
 
         <div class="mb-3">
-            <label for="stock" class="form-label">Stock</label>
+            <label for="stock" class="form-label">Stock<span class="text-danger">*</span></label>
             <input type="number" name="stock" class="form-control" id="stock" placeholder="Enter stock quantity" required>
         </div>
 
